@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+<head>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+{% block title %}Технологии{% endblock %}
+{% block content %}
+<div class="container py-5">
+{% comment %} Колонки с отступом сверху и снизу {% endcomment %}
+<div class="row">
+  <h1>Вот что я умею</h1>
+  {% comment %}
+    Боковой блок со списком технологий 
+    Займет всю ширину блока на мобильном
+    и 25% при размерах экрана ≥768px
+  {% endcomment %}
+  <aside class="col-12 col-md-3">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        Python
+      </li>
+      <li class="list-group-item">
+        Django
+      </li>
+    </ul>
+  </aside>
+  {% comment %}
+    Статья  
+    Займет всю ширину блока на мобильном
+    и 75% при размерах экрана ≥768px
+  {% endcomment %}
+  <article class="col-12 col-md-9">
+    <p>Этот проект создан на основе фреймворка Django на языке Python. Здесь используется много новых, интересных, а порой
+      и сложныж для меня технологий. Однако я надеюсь со временем развить свой уровень теоретических знаний и 
+      практических навыков до того уровня, на котором смог бы свободно ориентироваться в строчках кода и без проблем
+      справляться с задачами Backend-разработчика. 
+    </p>
+    <p>Пока я оставлю это скромное описание в надежде дополнить его в дальнейшем, засим прощаюсь.</p>
+  </article>
+</div>
+{% endblock %}
