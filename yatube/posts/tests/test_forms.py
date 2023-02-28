@@ -3,7 +3,6 @@ import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
-# from posts.forms import PostForm
 from django.conf import settings
 from django.urls import reverse
 from http import HTTPStatus
@@ -25,11 +24,6 @@ class PostFormTests(TestCase):
             slug='test_slug',
             description='Тестовое описание',
         )
-        # cls.post = Post.objects.create(
-        #     author=cls.author,
-        #     text='Тестовый пост',
-        #     group=cls.group,
-        # )
         cls.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
             b'\x01\x00\x80\x00\x00\x00\x00\x00'

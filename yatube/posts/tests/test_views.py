@@ -11,6 +11,7 @@ class PostPagesTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='GeorgiyGyrdzhiev')
+        cls.author = User.objects.create(username='author')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -163,22 +164,31 @@ class PostPagesTests(TestCase):
         )
 
     def test_follow_subscribe(self):
-        """
-        Проверяем, что пользователь может
-        подписываться и отписываться от авторов.
-        """
-        response = self.authorized_client.get(reverse('posts:follow_index'))
-        self.assertEqual(len(response.context['page_obj']), 0)
-        Follow.objects.get_or_create(user=self.user, author=self.post.author)
-        subscription = self.authorized_client.get(
-            reverse('posts:follow_index')
+        """Проверяем, что пользователь может подписываться на авторов."""
+        self.authorized_client.get(
+            reverse('posts:profile_follow', kwargs={'username': 'author'})
         )
-        self.assertEqual(len(subscription.context['page_obj']), 1)
-        Follow.objects.all().delete()
-        unsubscribe = self.authorized_client.get(
-            reverse('posts:follow_index')
+        self.assertTrue(
+            Follow.objects.filter(
+                author=self.author,
+                user=self.user
+            ).exists()
         )
-        self.assertEqual(len(unsubscribe.context['page_obj']), 0)
+
+    def test_follow_unsubscribe(self):
+        """Проверяем, что пользователь может отписываться от авторов."""
+        self.authorized_client.get(
+            reverse('posts:profile_follow', kwargs={'username': 'author'})
+        )
+        self.authorized_client.get(
+            reverse('posts:profile_unfollow', kwargs={'username': 'author'})
+        )
+        self.assertFalse(
+            Follow.objects.filter(
+                author=self.author,
+                user=self.user
+            ).exists()
+        )
 
     def test_follow_page(self):
         """

@@ -1,14 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
 from django.db.models.functions import Length
 from posts.utils import get_page
 
-from .models import Post, Group, Comment, Follow
+from .models import Post, Group, Follow, User
 from .forms import PostForm, CommentForm
-
-
-User = get_user_model()
 
 
 def index(request):
@@ -38,7 +34,8 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     page_obj = get_page(request, author.posts.all())
-    following = author.following.exists()
+    following = request.user.is_authenticated and author.following.filter(
+        user=request.user).exists()
     context = {
         'author': author,
         'page_obj': page_obj,
@@ -50,11 +47,9 @@ def profile(request, username):
 def post_detail(request, post_id):
     form = CommentForm(request.POST or None)
     post = get_object_or_404(Post, pk=post_id)
-    comments = Comment.objects.filter(post=post)
     context = {
         'post': post,
         'form': form,
-        'comments': comments,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -111,13 +106,10 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    follower = Follow.objects.filter(user=request.user).values_list(
-        'author_id', flat=True
-    )
-    posts = Post.objects.filter(author_id__in=follower)
+    posts = Post.objects.select_related('author', 'group').filter(
+        author__following__user=request.user)
     page_obj = get_page(request, posts)
     context = {
-        'title': 'Посты интересных авторов',
         'page_obj': page_obj,
     }
     return render(request, 'posts/follow.html', context)
