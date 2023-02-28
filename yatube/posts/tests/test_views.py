@@ -11,7 +11,6 @@ class PostPagesTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='GeorgiyGyrdzhiev')
-        cls.author = User.objects.create(username='author')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -163,9 +162,31 @@ class PostPagesTests(TestCase):
             Comment.objects.filter(text=form_data.get('text')).exists()
         )
 
+
+class FollowTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.author = User.objects.create(username='author')
+        cls.user = User.objects.create(username='subscriber')
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test-slug',
+            description='Тестовое описание',
+        )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Тестовый пост',
+            group=cls.group,
+        )
+
+    def setUp(self):
+        self.authorized_client_sub = Client()
+        self.authorized_client_sub.force_login(FollowTests.user)
+
     def test_follow_subscribe(self):
         """Проверяем, что пользователь может подписываться на авторов."""
-        self.authorized_client.get(
+        self.authorized_client_sub.get(
             reverse('posts:profile_follow', kwargs={'username': 'author'})
         )
         self.assertTrue(
@@ -177,12 +198,16 @@ class PostPagesTests(TestCase):
 
     def test_follow_unsubscribe(self):
         """Проверяем, что пользователь может отписываться от авторов."""
-        self.authorized_client.get(
-            reverse('posts:profile_follow', kwargs={'username': 'author'})
+        self.assertEqual(Follow.objects.count(), 0)
+        Follow.objects.create(
+            author=FollowTests.author,
+            user=FollowTests.user
         )
-        self.authorized_client.get(
+        self.assertEqual(Follow.objects.count(), 1)
+        self.authorized_client_sub.get(
             reverse('posts:profile_unfollow', kwargs={'username': 'author'})
         )
+        self.assertEqual(Follow.objects.count(), 0)
         self.assertFalse(
             Follow.objects.filter(
                 author=self.author,
@@ -196,11 +221,11 @@ class PostPagesTests(TestCase):
         не появляются у тех, кто не подписан.
         """
         Follow.objects.get_or_create(user=self.user, author=self.post.author)
-        subscriber = self.authorized_client.get(
+        subscriber = self.authorized_client_sub.get(
             reverse('posts:follow_index')
         )
         self.assertIn(self.post, subscriber.context['page_obj'])
         common = User.objects.create(username='NoName')
-        self.authorized_client.force_login(common)
-        empty = self.authorized_client.get(reverse('posts:follow_index'))
+        self.authorized_client_sub.force_login(common)
+        empty = self.authorized_client_sub.get(reverse('posts:follow_index'))
         self.assertNotIn(self.post, empty.context['page_obj'])
