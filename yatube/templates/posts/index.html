@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% load cache %}
+{% comment %} {% load cache %} {% endcomment %}
 {% block title %}Последние обновления на сайте{% endblock %}
 {% block content %}
   <div class="container py-5">
     <h1>Последние обновления на сайте</h1>
     {% include 'posts/includes/switcher.html' %}
-    {% cache 20 index_page %}
+    {% comment %} {% cache 20 index_page %} {% endcomment %}
     {% for post in page_obj %}
     {% include 'includes/content.html' %}
     {% if post.group %}
@@ -14,6 +14,6 @@
     {% if not forloop.last %}<hr>{% endif %}
     {% endfor %}
     {% include 'posts/includes/paginator.html' %}
-    {% endcache %}
+    {% comment %} {% endcache %} {% endcomment %}
   </div>
 {% endblock %}

@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models.functions import Length
 from posts.utils import get_page
+from django.views.decorators.cache import cache_page
 
 from .models import Post, Group, Follow, User
 from .forms import PostForm, CommentForm
 
 
+@cache_page(20)
 def index(request):
     posts = Post.objects.all().select_related('author', 'group').annotate(
         text_length=Length('text')
