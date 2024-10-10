@@ -1,19 +1,18 @@
-# Yatube_project
-### Description
-An innovative social network for micro-blogs, and maybe not so micro
+# TreadTalk
+### Описание
+Платформа для создания групп по интересам и публикации тредов и комментариев  
 ### Technologies
 Python 3.9.10
-Django 2.2.19
+Django 3.2.15
 ### Launching a project in dev mode
-- Install and activate the virtual environment
-- Install dependencies from the file requirements.txt
-```
+- Установите и активируйте виртуальную среду
+- Установите зависимости из файла requirements.txt
+```bash
 pip install -r requirements.txt
 ```
-- In the file folder manage.py run the command:
-```
+- В папке с файлом manage.py запустите команду:
+```bash
 python manage.py runserver
 ```
-### Authors
+### Автор
 Sergey Khryashchev (Khryashoff)
-
